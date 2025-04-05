@@ -23,7 +23,7 @@ const server = app.listen(port, () => {
 });
 
 process.on("unhandledRejection", (err) => {
-  console.log(err);
+  // console.log(err);
   server.close(() => {
     process.exit(1); // 1 stands for uncaught exception
   });
