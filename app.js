@@ -15,17 +15,27 @@ const path = require("path");
 
 const app = express();
 
+const allowedOrigins = [
+  "https://nutricook-frontend.vercel.app",
+  /^http:\/\/localhost:\d+$/, // Any localhost port
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || /^http:\/\/localhost:\d+$/.test(origin)) {
-      callback(null, true); // Allow requests from any localhost port
+    if (
+      !origin ||
+      allowedOrigins.some((o) =>
+        typeof o === "string" ? o === origin : o.test(origin)
+      )
+    ) {
+      callback(null, true); // Allow request
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("Not allowed by CORS")); // Block others
     }
   },
-  methods: "GET,POST,PUT,DELETE,PATCH", // Allowed HTTP methods
-  allowedHeaders: "Content-Type, Authorization", // Allowed headers
-  credentials: true, // Enable credentials (cookies, authorization headers)
+  methods: "GET,POST,PUT,DELETE,PATCH",
+  allowedHeaders: "Content-Type, Authorization",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
