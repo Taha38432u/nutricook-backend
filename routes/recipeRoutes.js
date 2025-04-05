@@ -28,7 +28,7 @@ router.post("/nutrients", recipeController.getNutrients);
 //   .patch(uploadRecipeImage, processRecipeImage, recipeController.updateRecipe);
 
 // User routes
-// router.route("/").post(recipeController.createRecipe);
+router.route("/").post(recipeController.createRecipe);
 
 // Get the current user's recipes
 router.get("/me", userController.getMe, recipeController.getUserRecipes);
