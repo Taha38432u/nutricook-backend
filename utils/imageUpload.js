@@ -1,9 +1,9 @@
 const multer = require("multer");
 const sharp = require("sharp");
-const path = require("path");
-const fs = require("fs");
+const cloudinary = require("./cloudinary");
+const streamifier = require("streamifier");
 
-// Store images in memory for processing
+// Store images in memory
 const multerStorage = multer.memoryStorage();
 
 // Only accept images
@@ -26,30 +26,39 @@ const processRecipeImage = async (req, res, next) => {
       });
     }
 
-    const filename = `recipe-${Date.now()}.jpeg`;
-    const outputPath = path.join(__dirname, "../images", filename);
-
-    // Ensure folder exists
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-
-    // Process the image with sharp
-    await sharp(req.file.buffer)
+    // Process image with sharp
+    const buffer = await sharp(req.file.buffer)
       .resize(800, 600, {
         fit: "inside",
         withoutEnlargement: true,
       })
       .toFormat("jpeg")
       .jpeg({ quality: 85 })
-      .toFile(outputPath);
+      .toBuffer();
 
-    // Send the image path directly in the response
+    // Upload to Cloudinary using stream
+    const streamUpload = () =>
+      new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "recipes" }, // optional folder
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(stream);
+      });
+
+    const result = await streamUpload();
+
+    // Return Cloudinary URL
     return res.status(200).json({
       status: "success",
-      message: "Image uploaded and processed successfully",
-      imagePath: `/images/${filename}`,
+      message: "Image uploaded to Cloudinary",
+      imageUrl: result.secure_url,
     });
   } catch (error) {
-    next(error); // Pass the error to the error handler middleware
+    next(error);
   }
 };
 

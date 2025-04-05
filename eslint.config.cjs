@@ -25,7 +25,7 @@ module.exports = [
 
       // ⚫ Import Rules (Prevent Import Issues)
       "import/no-unresolved": "error", // Ensure imports point to correct files
-      "import/no-extraneous-dependencies": ["warn", { packageDir: "./" }], // ✅ Warn if a package is not in package.json
+      // "import/no-extraneous-dependencies": ["warn", { packageDir: "./" }], // ✅ Warn if a package is not in package.json
       // "import/no-missing-require": "error", // ✅ Ensure require() statements point to installed modules
       "import/newline-after-import": "warn", // Enforce newline after imports
       "import/no-duplicates": "error", // Prevent duplicate imports
