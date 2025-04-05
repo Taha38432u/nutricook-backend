@@ -7,7 +7,7 @@ const AppError = require("../utils/AppError");
 const Like = require("../models/likeModel");
 // const copy = require("fast-copy").default; // Use `.default` to access the function
 
-exports.createRecipe = catchAsync(async (req, res, next) => {
+exports.createRecipe = catchAsync(async (req, res) => {
   const {
     title,
     description,
@@ -17,36 +17,28 @@ exports.createRecipe = catchAsync(async (req, res, next) => {
     cookingTime,
     cuisine,
     dietaryPreferences,
+    image,
   } = req.body;
 
-  // Prepare an array to store updated ingredients with nutrient data
   const updatedIngredients = [];
 
-  // console.log(ingredients);
-
-  // Loop through each ingredient and get its nutritional data
   for (let ingredient of ingredients) {
-    // Call Edamam's API to fetch nutritional data for each ingredient
     const nutritionResponse = await axios.get(
       `https://api.edamam.com/api/nutrition-data`,
       {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         params: {
           app_id: process.env.EDAMAM_APP_ID,
           app_key: process.env.EDAMAM_APP_KEY,
-          nutrition_type: "cooking", // Set this to 'cooking' as per API documentation
-          ingr: ingredient.ingName, // Pass each ingredient name as a query parameter
+          nutrition_type: "cooking",
+          ingr: ingredient.ingName,
         },
       }
     );
 
-    // Extract and format the nutrient data for the ingredient
     const ingredientNutrients = nutritionResponse.data;
 
     if (ingredientNutrients) {
-      // Push the ingredient with its nutrient data into the updatedIngredients array
       updatedIngredients.push({
         ingName: ingredient.ingName,
         nutrients: {
@@ -67,23 +59,22 @@ exports.createRecipe = catchAsync(async (req, res, next) => {
     }
   }
 
-  console.log(req.user.id);
-  // Step 2: Create and Save Recipe to MongoDB
   const newRecipe = new Recipe({
     title,
     description,
-    ingredients: updatedIngredients, // Store ingredients with nutrient data
+    ingredients: updatedIngredients,
     instructions,
     preparationTime,
     cookingTime,
     cuisine,
     dietaryPreferences,
-    createdBy: req.user.id, // User ID from the request
+    image,
+    createdBy: req.user.id,
   });
 
   const savedRecipe = await newRecipe.save();
 
-  res.status(201).json(savedRecipe); // Send the saved recipe back as a response
+  res.status(201).json(savedRecipe);
 });
 
 exports.getNutrients = catchAsync(async (req, res, next) => {
@@ -155,6 +146,7 @@ exports.updateRecipe = catchAsync(async (req, res, next) => {
     cookingTime,
     cuisine,
     dietaryPreferences,
+    image
   } = req.body;
 
   // Find the recipe to update

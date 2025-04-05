@@ -6,20 +6,34 @@ const likeController = require("../controllers/likeController");
 
 const router = express.Router();
 
+const {
+  uploadRecipeImage,
+  processRecipeImage,
+} = require("../utils/imageUpload");
+
+// Apply these middlewares before create/update routes
+
 // Public Route: Get all recipes (accessible by anyone)
 router.route("/").get(recipeController.getAllRecipes);
 
 // Protect all the routes below with the authentication middleware
 router.use(authController.protect);
 
+router.route("/uploadImage").post(uploadRecipeImage, processRecipeImage);
+
+router.post("/nutrients", recipeController.getNutrients);
+
+// router
+//   .route("/:id")
+//   .patch(uploadRecipeImage, processRecipeImage, recipeController.updateRecipe);
+
 // User routes
-router.route("/").post(recipeController.createRecipe);
+// router.route("/").post(recipeController.createRecipe);
 
 // Get the current user's recipes
 router.get("/me", userController.getMe, recipeController.getUserRecipes);
 
 // Get Nutrients
-router.post("/nutrients", recipeController.getNutrients);
 
 // Toggle Like
 router.patch("/like/:id", likeController.toggleLike);
