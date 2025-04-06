@@ -14,13 +14,12 @@ const {
 // Apply these middlewares before create/update routes
 
 // Public Route: Get all recipes (accessible by anyone)
-router.route("/").get(recipeController.getAllRecipes);
 
 // Protect all the routes below with the authentication middleware
 router.use(authController.protect);
 
+router.route("/").get(recipeController.getAllRecipes);
 router.route("/uploadImage").post(uploadRecipeImage, processRecipeImage);
-
 router.post("/nutrients", recipeController.getNutrients);
 
 // router

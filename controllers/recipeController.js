@@ -146,7 +146,7 @@ exports.updateRecipe = catchAsync(async (req, res, next) => {
     cookingTime,
     cuisine,
     dietaryPreferences,
-    image
+    image,
   } = req.body;
 
   // Find the recipe to update
@@ -336,6 +336,7 @@ exports.getAllRecipes = catchAsync(async (req, res, next) => {
       const recipeObject = recipe.toObject(); // Convert Mongoose document to plain object
       delete recipeObject.createdBy; // Remove the field
       delete recipeObject.userName._id;
+      delete recipeObject.userName.id;
       return recipeObject;
     });
 
